@@ -25,7 +25,7 @@ namespace GoogleARCore.Examples.HelloAR
     using GoogleARCore.Examples.Common;
     using UnityEngine;
     using UnityEngine.EventSystems;
-
+    
 #if UNITY_EDITOR
     // Set up touch input propagation while using Instant Preview in the editor.
     using Input = InstantPreviewInput;
@@ -36,6 +36,7 @@ namespace GoogleARCore.Examples.HelloAR
     /// </summary>
     public class HelloARController : MonoBehaviour
     {
+        public bool m_placed = false;
         /// <summary>
         /// The first-person camera being used to render the passthrough camera image (i.e. AR
         /// background).
@@ -79,6 +80,7 @@ namespace GoogleARCore.Examples.HelloAR
         /// <summary>
         /// The Unity Update() method.
         /// </summary>
+        /// 
         public void Update()
         {
             _UpdateApplicationLifecycle();
@@ -107,12 +109,13 @@ namespace GoogleARCore.Examples.HelloAR
                 // back of the plane, if it is, no need to create the anchor.
                 if ((hit.Trackable is DetectedPlane) &&
                     Vector3.Dot(FirstPersonCamera.transform.position - hit.Pose.position,
-                        hit.Pose.rotation * Vector3.up) < 0)
+                        hit.Pose.rotation * Vector3.up) < 0 && m_placed == false)
                 {
                     Debug.Log("Hit at back of the current DetectedPlane");
                 }
                 else
                 {
+                    
                     // Choose the Andy model for the Trackable that got hit.
                     GameObject prefab;
                     if (hit.Trackable is FeaturePoint)
@@ -137,7 +140,8 @@ namespace GoogleARCore.Examples.HelloAR
                     }
 
                     // Instantiate Andy model at the hit pose.
-                    var andyObject = Instantiate(prefab, hit.Pose.position, hit.Pose.rotation);
+                        var andyObject = Instantiate(prefab, hit.Pose.position, hit.Pose.rotation);
+                    
 
                     // Compensate for the hitPose rotation facing away from the raycast (i.e.
                     // camera).
@@ -149,7 +153,7 @@ namespace GoogleARCore.Examples.HelloAR
 
                     // Make Andy model a child of the anchor.
                     andyObject.transform.parent = anchor.transform;
-
+                    m_placed = true;
                     disablePlaneClass.DisablePlaneTracker();
                     
 
